@@ -1,0 +1,19 @@
+.stock {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; 
+    justify-content: center;
+}
+
+.heading {
+    text-align: center;
+}
+
+.stock_item {
+    text-align: center;
+    border-radius: 20px;
+    width: 30%;
+    height: 300px;
+    padding: 10px;
+    box-shadow: 0 14px 28px rgba(107, 106, 106, 0.25);
+}

@@ -1,21 +1,10 @@
-<h2>Stock Price</h2>
-<p>{{ price }}</p>
+<h2 class='heading'>Stock Prices</h2>
+<div class="stock">
+  <div class="stock_item" *ngFor="let item of tickers">
+    <p>{{ item }}</p>
+    <br>
+    <p>{{prices[item]}}</p>
+  </div>
+</div>
 
-<select #stockTicker (change)="getTicker(stockTicker.value)" name="" id="">
-  <option value="INFY">INFY</option>
-  <option value="VEDL">VEDL</option>
-  <option value="IRCTC">IRCTC</option>
-  <option value="INOXINDIA">INOXINDIA</option>
-  <option value="EXCIDEIND">EXCIDEIND</option>
-  <option value="CGPOWER">CGPOWER</option>
-  <option value="CANBK">CANBK</option>
-  <option value="BAJAJHFL">BAJAJHFL</option>
-  <option value="TATAPOWER">TATAPOWER</option>
-  <option value="TATAMOTORS">TATAMOTORS</option>
-  <option value="VBL">VBL</option>
-  <option value="ITC">ITC</option>
-  <option value="BAJAJ-AUTO">BAJAJ-AUTO</option>
-  <option value="JIOFIN">JIOFIN</option>
-  <option value="TATASTEEL">TATASTEEL</option>
-</select>
 <router-outlet />
