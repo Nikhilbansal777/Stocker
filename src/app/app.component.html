@@ -1,9 +1,19 @@
-<h2 class='heading'>Stock Prices</h2>
+<h2 class="heading">Stock Prices</h2>
 <div class="stock">
   <div class="stock_item" *ngFor="let item of tickers">
-    <p>{{ item }}</p>
-    <br>
-    <p>{{prices[item]}}</p>
+    <p class="ticker">{{ item }}</p>
+    <br />
+    <p>
+      prev close - <strong>{{ previousClose[item] }}</strong>
+    </p>
+    <br />
+    <p>
+      price - <strong>{{ prices[item] }}</strong>
+    </p>
+    <br />
+    <p>
+      revenue - <strong>{{ revenue[item] }} cr</strong>
+    </p>
   </div>
 </div>
 

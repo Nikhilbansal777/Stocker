@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { StockService } from './stock.service';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -14,6 +14,8 @@ import { CommonModule } from '@angular/common';
 })
 export class AppComponent implements OnInit, OnDestroy {
   public prices: { [key: string]: number | null } = {};
+  public previousClose: { [key: string]: number | null } = {};
+  public revenue: { [key: string]: number | null } = {};
   private intervalIds: { [key: string]: any } = {};
   public tickers = [
     'KPITTECH',
@@ -54,13 +56,18 @@ export class AppComponent implements OnInit, OnDestroy {
     'TATASTEEL',
   ];
 
-  constructor(private stockService: StockService) {}
+  constructor(private stockService: StockService, private http: HttpClient) {}
 
   ngOnInit() {
     this.shouldFetchData();
     this.tickers.forEach((ticker) => {
       this.getRealTimeStockPrice(ticker);
     });
+
+    // this.http.get('https://www.google.com/finance/quote/INFY:NSE').subscribe((res)=>{
+    //   console.log(res);
+      
+    // })
   }
 
   ngOnDestroy() {
@@ -73,7 +80,6 @@ export class AppComponent implements OnInit, OnDestroy {
     const hour = now.getHours();
     const minutes = now.getMinutes();
 
-    console.log(now, day, hour, minutes);
     if (day === 0 || day === 6) {
       return false;
     }
@@ -88,14 +94,23 @@ export class AppComponent implements OnInit, OnDestroy {
     this.stockService.fetchStockData(stockTicker).subscribe((response) => {
       const parser = new DOMParser();
       const doc = parser.parseFromString(response, 'text/html');
+      console.log(doc)
       const priceElement = doc.querySelector('.YMlKec.fxKbKc');
-      if (priceElement) {
-        this.prices[stockTicker] = parseFloat(
-          priceElement.textContent!.replace('₹', '').replace(',', '')
-        );
-        console.log(`Price for ${stockTicker}:`, this.prices[stockTicker]);
+      const previousClose = doc.querySelector('.P6K39c');
+      const revenue = doc.querySelector('.P6K39c');
+      console.log(previousClose)
+      if (priceElement && previousClose) {
+        this.prices[stockTicker] = this.formatData(priceElement)
+        this.previousClose[stockTicker] = this.formatData(previousClose)
+        this.revenue[stockTicker] = this.formatData(revenue)
       }
     });
+  }
+
+  formatData(val: any){
+    return parseFloat(
+      val.textContent!.replace('₹', '').replace(',', '')
+    );
   }
 
   getRealTimeStockPrice(stockTicker: string) {
