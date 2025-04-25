@@ -3,7 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { StockService } from './stock.service';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-
+import { SwPush, SwUpdate } from '@angular/service-worker';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -56,7 +56,11 @@ export class AppComponent implements OnInit, OnDestroy {
     'TATASTEEL',
   ];
 
-  constructor(private stockService: StockService, private http: HttpClient) {}
+  constructor(
+    private stockService: StockService,
+    private swPush: SwPush,
+    private swUpdate: SwUpdate
+  ) {}
 
   ngOnInit() {
     this.shouldFetchData();
@@ -64,12 +68,49 @@ export class AppComponent implements OnInit, OnDestroy {
       this.getRealTimeStockPrice(ticker);
     });
 
+    this.swPush.messages.subscribe((mess) => console.log(mess));
+    this.swPush.notificationClicks.subscribe(({ action, notification }) => {
+      window.open(notification.data.url);
+    });
     // this.http.get('https://www.google.com/finance/quote/INFY:NSE').subscribe((res)=>{
     //   console.log(res);
-      
+
     // })
+    console.log('hi');
+    this.pushSubscription();
   }
 
+  public VAPID_PUBLIC_KEY =
+    'BIwHKMzF6gMtT89NlBq2mThi5G29Sxlge4jLFVZWJUx2dNOUQ6kL_0t3cmGC7S6rlDrEjQFvkyIX_PnBLXNEMEI';
+
+  pushSubscription() {
+    console.log(this.swPush.isEnabled);
+    if (!this.swPush.isEnabled) {
+      console.log('notfiication enabled');
+      return;
+    } else {
+      console.log('not enabled');
+    }
+    this.swPush
+      .requestSubscription({
+        serverPublicKey: this.VAPID_PUBLIC_KEY,
+      })
+      .then((re) => {
+        console.log(re, 'hi');
+      })
+      .catch((er) => console.log(er));
+  }
+
+  subs() {
+    this.swPush
+      .requestSubscription({
+        serverPublicKey: this.VAPID_PUBLIC_KEY,
+      })
+      .then((re) => {
+        console.log(re);
+      })
+      .catch((er) => console.log(er));
+  }
   ngOnDestroy() {
     this.clearAllIntervals();
   }
@@ -94,23 +135,21 @@ export class AppComponent implements OnInit, OnDestroy {
     this.stockService.fetchStockData(stockTicker).subscribe((response) => {
       const parser = new DOMParser();
       const doc = parser.parseFromString(response, 'text/html');
-      console.log(doc)
+      // console.log(doc)
       const priceElement = doc.querySelector('.YMlKec.fxKbKc');
       const previousClose = doc.querySelector('.P6K39c');
       const revenue = doc.querySelector('.P6K39c');
-      console.log(previousClose)
+      // console.log(previousClose)
       if (priceElement && previousClose) {
-        this.prices[stockTicker] = this.formatData(priceElement)
-        this.previousClose[stockTicker] = this.formatData(previousClose)
-        this.revenue[stockTicker] = this.formatData(revenue)
+        this.prices[stockTicker] = this.formatData(priceElement);
+        this.previousClose[stockTicker] = this.formatData(previousClose);
+        this.revenue[stockTicker] = this.formatData(revenue);
       }
     });
   }
 
-  formatData(val: any){
-    return parseFloat(
-      val.textContent!.replace('₹', '').replace(',', '')
-    );
+  formatData(val: any) {
+    return parseFloat(val.textContent!.replace('₹', '').replace(',', ''));
   }
 
   getRealTimeStockPrice(stockTicker: string) {

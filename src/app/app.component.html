@@ -1,4 +1,5 @@
 <h2 class="heading">Stock Prices</h2>
+<button (click)="pushSubscription()">Subs</button>
 <div class="stock">
   <div class="stock_item" *ngFor="let item of tickers">
     <p class="ticker">{{ item }}</p>
